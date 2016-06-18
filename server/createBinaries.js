@@ -35,7 +35,7 @@ var projectRoot = function(){
   }
 };
 
-var ELECTRON_VERSION = '0.36.7';
+var ELECTRON_VERSION = '0.37.8';
 
 var electronSettings = Meteor.settings.electron || {};
 
