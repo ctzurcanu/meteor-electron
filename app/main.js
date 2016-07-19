@@ -1,4 +1,5 @@
-var app = require('electron').app; // Module to control application life.
+var electron = require('electron');
+var app = electron.app; // Module to control application life.
 var childProcess = require("child_process");
 var path = require("path");
 var fs = require("fs");
@@ -101,7 +102,7 @@ if (electronSettings.updateFeedUrl) {
 
 var launchUrl;
 if (electronSettings.autoPackage && electronSettings.bundleClient) {
-  launchUrl = 'file://' + __dirname + '/web/index.html';
+  launchUrl = 'meteor://bundle/index.html';
 } else {
   launchUrl = electronSettings.rootUrl;
   if (electronSettings.launchPath) {
@@ -176,6 +177,12 @@ app.on("ready", function(){
   mainWindow.on('close', hideInsteadofClose);
 
   mainWindow.focus();
+
+  // rewrite webapp requests to filesystem
+  electron.protocol.registerFileProtocol('meteor', function(request, callback) {
+    callback({ path: request.url.replace('meteor://bundle/', __dirname + '/web/').split('?')[0].split('#')[0] });
+  });
+
   mainWindow.loadURL(launchUrl);
 });
 
