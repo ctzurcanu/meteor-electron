@@ -1,6 +1,6 @@
 var electronPackager = Meteor.wrapAsync(Npm.require("electron-packager"));
 var electronRebuild = Npm.require('electron-rebuild');
-var meteorBuildClient = Meteor.wrapAsync(Npm.require('meteor-build-client'));
+var meteorBuildClient = Meteor.wrapAsync(Npm.require('meteor-build-client-only'));
 var fs = Npm.require('fs');
 var mkdirp = Meteor.wrapAsync(Npm.require('mkdirp'));
 var path = Npm.require('path');
@@ -197,7 +197,7 @@ createBinaries = function() {
       meteorBuildClient({
         input: projectRoot(),
         output: buildDirs.web,
-        path: './',
+        path: '/',
         settings: _.pick(Meteor.settings, 'public'),
       });
       buildRequired = true;

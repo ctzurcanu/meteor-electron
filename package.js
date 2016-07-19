@@ -3,7 +3,7 @@
 Package.describe({
   name: 'jarnoleconte:electron',
   summary: "Electron",
-  version: "0.1.4",
+  version: "0.1.5",
   git: "https://github.com/JarnoLeConte/meteor-electron"
 });
 
@@ -17,7 +17,7 @@ Npm.depends({
   "semver": "5.1.0",
   "url-join": "0.0.1",
   "electron-rebuild": "1.0.1",
-  "meteor-build-client": "https://github.com/jarnoleconte/meteor-build-client/archive/2f470fc716544021ff9a98dca6c8f7610c736a48.tar.gz",
+  "meteor-build-client-only": "0.5.1",
 });
 
 Package.onUse(function (api) {
