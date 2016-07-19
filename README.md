@@ -1,6 +1,8 @@
-# FORK
+# meteor + electron = desktop app
 
-This repository is a fork of [electron-webapps/meteor-electron](https://github.com/electron-webapps/meteor-electron) to create offline apps. 
+This repository is a fork of [electron-webapps/meteor-electron](https://github.com/electron-webapps/meteor-electron) to create meteor desktop apps that can be used offline. 
+
+# Offline... what do you mean?
 
 It bundle your client-side meteor code together with the Electron app. So instead of loading an external web page, now the html, css and javascript are loaded from the bundle itself. While it's still possible to connect to a meteor server through DDP if you want.
 
@@ -8,7 +10,7 @@ Use a package like [ground:db@2.0.0-rc.4](https://github.com/GroundMeteor/db/tre
 
 This way you take advantage of meteor's build system and just run meteor without the need to dive into Electron's tools. Your app can be used offline, without installing meteor or mongodb on user's computer.
 
-**How to use?**
+# How to use?
 
 Just add `"bundleClient": true` in the `electron` section of your meteor's settings file. Now if you package the app by setting the additional setting `"autoPackage": true`, an app is created that has the html, css and js bundled. Bundling will take a while, so usally you set `"autoPackage": false` again after you are done.
 
@@ -34,14 +36,14 @@ Just add `"bundleClient": true` in the `electron` section of your meteor's setti
 
 * The `rootUrl` is used while development (if `"autoPackage": false,`). When the app becomes packages the rootUrl is replace by the local file `index.html` bundled with the app.
 
-**Electron VERSION**
+# Electron VERSION
 
 This package uses electron version **0.36.7**. The version is editable in `server/createBinaries.js` but probably it wil break funcationality.
 
 
-....
-
-The original docs: 
+===================
+Original docs below
+===================
 
 
 # meteor-electron
