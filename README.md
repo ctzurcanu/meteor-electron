@@ -34,7 +34,7 @@ Just add `"bundleClient": true` in the `electron` section of your meteor's setti
 }
 ```
 
-* The `rootUrl` is used while development (if `"autoPackage": false,`). When the app becomes packages the rootUrl is replace by the local file `index.html` bundled with the app.
+* The `rootUrl` is used while developing (if `"autoPackage": false`). At the moment the app becomes packaged the rootUrl is replaced by the local file `index.html` that is bundled with the app.
 
 # Electron VERSION
 

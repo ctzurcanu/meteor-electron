@@ -3,7 +3,7 @@
 Package.describe({
   name: 'jarnoleconte:electron',
   summary: "Electron",
-  version: "0.1.5",
+  version: "0.1.6",
   git: "https://github.com/JarnoLeConte/meteor-electron"
 });
 
