@@ -4,6 +4,8 @@ var proc = Npm.require('child_process');
 
 var ElectronProcesses = new Mongo.Collection("processes");
 
+var electronSettings = Meteor.settings.electron || {};
+
 var ProcessManager = {
   add: function(pid){
     ElectronProcesses.insert({ pid: pid });
@@ -45,12 +47,11 @@ launchApp = function(app, appIsNew) {
     electronExecutable = app;
     child = proc.spawn(electronExecutable);
   } else {
-    electronExecutable = path.join(app, "Contents", "MacOS", "Electron");
+    electronExecutable = path.join(app, "Contents", "MacOS", electronSettings.name);
     var appDir = path.join(app, "Contents", "Resources", "app");
 
     //TODO figure out how to handle case where electron executable or
     //app dir don't exist
-
     child = proc.spawn(electronExecutable, [appDir]);
   }
 

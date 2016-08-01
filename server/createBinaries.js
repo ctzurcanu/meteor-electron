@@ -36,7 +36,7 @@ var projectRoot = function(){
   }
 };
 
-var ELECTRON_VERSION = '0.36.7';
+var ELECTRON_VERSION = '0.37.8';
 var PACKAGE_NAME = 'jarnoleconte_electron';
 
 var electronSettings = Meteor.settings.electron || {};
@@ -106,7 +106,7 @@ createBinaries = function() {
 
     var didOverwriteNodeModules = false;
 
-    if (appHasChanged(resolvedAppSrcDir, buildDirs.working)) {
+    if (appHasChanged(resolvedAppSrcDir, buildDirs.checksum)) {
       buildRequired = true;
 
       // Copy the app directory over while also pruning old files.
@@ -168,6 +168,7 @@ createBinaries = function() {
       }
     }
 
+    // check for settings changes
     if (settingsHaveChanged(settings, buildDirs.app)) {
       if (signingIdentityRequiredAndMissing) {
         console.error('Developer ID signing identity is missing: remote updates will not work.');
@@ -176,8 +177,22 @@ createBinaries = function() {
       writeFile(settingsPath(buildDirs.app), JSON.stringify(settings));
     }
 
+    /* check for resource file changes */
+
     var packagerSettings = getPackagerSettings(buildInfo, buildDirs);
-    if (packagerSettings.icon && iconHasChanged(packagerSettings.icon, buildDirs.working)) {
+
+    if (packagerSettings.icon && iconHasChanged(packagerSettings.icon, buildDirs.checksum)) {
+      buildRequired = true;
+    }
+
+    if (packagerSettings['extend-info'] && fileHasChanged('plist', packagerSettings['extend-info'], buildDirs.checksum)) {
+      buildRequired = true;
+    }
+    var sign = packagerSettings['osx-sign'];
+    if (sign['entitlements'] && fileHasChanged('sandboxParent', sign['entitlements'], buildDirs.checksum)) {
+      buildRequired = true;
+    }
+    if (sign['entitlements-inherit'] && fileHasChanged('sandboxChild', sign['entitlements-inherit'], buildDirs.checksum)) {
       buildRequired = true;
     }
 
@@ -217,7 +232,7 @@ createBinaries = function() {
     /* Package the build for download if specified. */
     // TODO(rissem): make this platform independent
 
-    if (electronSettings.autoPackage && (buildInfo.platform === 'darwin')) {
+    if (electronSettings.autoPackage && _.contains(['darwin', 'mas'], buildInfo.platform)) {
       // The auto-updater framework only supports installing ZIP releases:
       // https://github.com/Squirrel/Squirrel.Mac#update-json-format
       var downloadName = (appName || "app") + ".zip";
@@ -256,6 +271,10 @@ function createBuildDirectories(build){
   var binaryDir = path.join(workingDir, "releases");
   mkdirp(binaryDir);
 
+  // *checksumDir* holds checksums of resources
+  var checksumDir = path.join(workingDir, ".checksum");
+  mkdirp(checksumDir);
+
   // *appDir* holds the electron application that points to a meteor app
   var appDir = path.join(workingDir, "apps");
   mkdirp(appDir);
@@ -274,6 +293,7 @@ function createBuildDirectories(build){
   return {
     working: workingDir,
     binary: binaryDir,
+    checksum: checksumDir,
     app: appDir,
     web: webDir,
     build: buildDir,
@@ -289,8 +309,12 @@ function getPackagerSettings(buildInfo, dirs){
     arch: buildInfo.arch,
     version: ELECTRON_VERSION,
     out: dirs.build,
-    cache: dirs.binary,
+    // cache: dirs.binary,
+    download: {
+      cache: dirs.binary,
+    },
     overwrite: true,
+    'osx-sign': {},
     // The EXE's `ProductName` is the preferred title of application shortcuts created by `Squirrel.Windows`.
     // If we don't set it, it will default to "Electron".
     'version-string': {
@@ -301,6 +325,18 @@ function getPackagerSettings(buildInfo, dirs){
   if (electronSettings.version) {
     packagerSettings['app-version'] = electronSettings.version;
   }
+  if (electronSettings.copyright) {
+    packagerSettings['app-copyright'] = electronSettings.copyright;
+  }
+  if (electronSettings.bundleId) {
+    packagerSettings['app-bundle-id'] = electronSettings.bundleId;
+  }
+  if (electronSettings.category) {
+    packagerSettings['app-category-type'] = electronSettings.category;
+  }
+  if (electronSettings.extendPlist) {
+    packagerSettings['extend-info'] = path.join(projectRoot(), electronSettings.extendPlist);
+  }
   if (electronSettings.icon) {
     var icon = electronSettings.icon[buildInfo.platform];
     if (icon) {
@@ -308,8 +344,18 @@ function getPackagerSettings(buildInfo, dirs){
       packagerSettings.icon = iconPath;
     }
   }
-  if (electronSettings.sign) {
-    packagerSettings.sign = electronSettings.sign;
+  if (_.isString(electronSettings.sign)) {
+    packagerSettings['osx-sign'].identity = electronSettings.sign;
+  }
+  if (electronSettings.sandbox) {
+    if (electronSettings.sandbox.parent) {
+      packagerSettings['osx-sign']['entitlements'] =
+        path.join(projectRoot(), electronSettings.sandbox.parent);
+    }
+    if (electronSettings.sandbox.child) {
+      packagerSettings['osx-sign']['entitlements-inherit'] =
+        path.join(projectRoot(), electronSettings.sandbox.child);
+    }
   }
   if (electronSettings.protocols) {
     packagerSettings.protocols = electronSettings.protocols;
@@ -332,8 +378,8 @@ function settingsHaveChanged(settings, appDir) {
   return !existingElectronSettings || !_.isEqual(settings, existingElectronSettings);
 }
 
-function appHasChanged(appSrcDir, workingDir) {
-  var appChecksumPath = path.join(workingDir, 'appChecksum.txt');
+function appHasChanged(appSrcDir, checksumDir) {
+  var appChecksumPath = path.join(checksumDir, 'app.checksum.txt');
   var existingAppChecksum;
   try {
     existingAppChecksum = readFile(appChecksumPath, 'utf8');
@@ -383,8 +429,8 @@ function packagerSettingsHaveChanged(settings, workingDir) {
   }
 }
 
-function iconHasChanged(iconPath, workingDir) {
-  var iconChecksumPath = path.join(workingDir, 'iconChecksum.txt');
+function iconHasChanged(iconPath, checksumDir) {
+  var iconChecksumPath = path.join(checksumDir, 'icon.checksum.txt');
   var existingIconChecksum;
   try {
     existingIconChecksum = readFile(iconChecksumPath, 'utf8');
@@ -402,7 +448,26 @@ function iconHasChanged(iconPath, workingDir) {
   }
 }
 
+function fileHasChanged(resourceName, filePath, checksumDir) {
+  var fileChecksumPath = path.join(checksumDir, resourceName + '.checksum.txt');
+  var existingFileChecksum;
+  try {
+    existingFileChecksum = readFile(fileChecksumPath, 'utf8');
+  } catch(e) {
+    // No existing checksum.
+  }
+
+  // `dirsum` works for files too.
+  var fileChecksum = dirsum(filePath);
+  if (fileChecksum !== existingFileChecksum) {
+    writeFile(fileChecksumPath, fileChecksum);
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function appPath(appName, platform, arch, buildDir) {
-  var appExtension = (platform === 'darwin') ? '.app' : '.exe';
+  var appExtension = _.contains(['darwin', 'mas'], platform) ? '.app' : '.exe';
   return path.join(buildDir, [appName, platform, arch].join('-'), appName + appExtension);
 }
