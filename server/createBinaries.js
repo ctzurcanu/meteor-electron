@@ -37,6 +37,7 @@ var projectRoot = function(){
 };
 
 var ELECTRON_VERSION = '0.36.7';
+var PACKAGE_NAME = 'jarnoleconte_electron';
 
 var electronSettings = Meteor.settings.electron || {};
 
@@ -83,7 +84,7 @@ createBinaries = function() {
       // See http://stackoverflow.com/a/29745318/495611 for how the package asset directory is derived.
       // We can't read this from the project directory like the user-specified app directory since
       // we may be loaded from Atmosphere rather than locally.
-      resolvedAppSrcDir = path.join(process.cwd(), 'assets', 'packages', 'meson_electron', 'app');
+      resolvedAppSrcDir = path.join(process.cwd(), 'assets', 'packages', PACKAGE_NAME, 'app');
     }
 
     // Check if the package.json has changed before copying over the app files, to account for
