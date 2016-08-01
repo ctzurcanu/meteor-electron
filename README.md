@@ -38,7 +38,31 @@ Just add `"bundleClient": true` in the `electron` section of your meteor's setti
 
 # Electron VERSION
 
-This package uses electron version **0.36.7**. The version is editable in `server/createBinaries.js` but probably it wil break funcationality.
+This package uses electron version **0.37.8**. The version is editable in `server/createBinaries.js` but probably it wil break funcationality.
+
+# Build for Mac App Store
+
+Possible settings. When leave blank, defaults will be used.
+
+{
+  "electron": {
+    "copyright": "Copyright © 2016 Company",
+    "icon": {
+      "mas": "private/icons/icon.icns",
+      "darwin": "private/icons/icon.icns",
+      "win32": "private/icons/icon.ico"
+    },
+    "sign": "Developer ID Application: .... (..........)",
+    "sandbox": {
+      "parent": "private/sandbox-parent.plist",
+      "child": "private/sandbox-child.plist"
+    },
+    "bundleId": "com.company.appname",
+    "category": "public.app-category.{SOME_CATEGORY}",
+    "extendPlist": "private/info.plist",
+  }
+}
+
 
 
 ===================
