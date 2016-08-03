@@ -47,7 +47,8 @@ launchApp = function(app, appIsNew) {
     electronExecutable = app;
     child = proc.spawn(electronExecutable);
   } else {
-    electronExecutable = path.join(app, "Contents", "MacOS", electronSettings.name);
+    const appName = electronSettings.name || 'Electron';
+    electronExecutable = path.join(app, "Contents", "MacOS", appName);
     var appDir = path.join(app, "Contents", "Resources", "app");
 
     //TODO figure out how to handle case where electron executable or
