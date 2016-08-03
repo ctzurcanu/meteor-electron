@@ -1,5 +1,4 @@
-var electron = require('electron');
-var app = electron.app; // Module to control application life.
+var { app, protocol } = require('electron');
 var childProcess = require("child_process");
 var path = require("path");
 var fs = require("fs");
@@ -77,7 +76,7 @@ if (handleStartupEvent()) {
   return;
 }
 
-var BrowserWindow = require('electron').BrowserWindow; // Module to create native browser window.
+var { BrowserWindow } = require('electron'); // Module to create native browser window.
 var autoUpdater = require('./autoUpdater');
 var path = require("path");
 var fs = require("fs");
@@ -100,8 +99,11 @@ if (electronSettings.updateFeedUrl) {
   };
 }
 
+// register custom protocol for packaged apps that rewrite urls to the filesystem
+// otherwise use the URL specified in the settings file.
 var launchUrl;
 if (electronSettings.autoPackage && electronSettings.bundleClient) {
+  protocol.registerStandardSchemes(['meteor']);
   launchUrl = 'meteor://bundle/index.html';
 } else {
   launchUrl = electronSettings.rootUrl;
@@ -125,7 +127,7 @@ var windowOptions = {
   webPreferences: {
     nodeIntegration: false,
     // See comments at the top of `preload.js`.
-    preload: path.join(__dirname, 'preload.js')
+    preload: path.join(__dirname, 'api.js')
   }
 };
 
@@ -178,10 +180,12 @@ app.on("ready", function(){
 
   mainWindow.focus();
 
-  // rewrite webapp requests to filesystem
-  electron.protocol.registerFileProtocol('meteor', function(request, callback) {
-    callback({ path: request.url.replace('meteor://bundle/', __dirname + '/web/').split('?')[0].split('#')[0] });
-  });
+  // rewrite webapp requests to filesystem for packaged apps
+  if (electronSettings.autoPackage && electronSettings.bundleClient) {
+    protocol.registerFileProtocol('meteor', function(request, callback) {
+      callback(request.url.replace('meteor://bundle/', __dirname + '/web/').split('?')[0].split('#')[0]);
+    });
+  }
 
   mainWindow.loadURL(launchUrl);
 });

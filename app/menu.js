@@ -1,5 +1,4 @@
-var BrowserWindow = require('browser-window');
-var Menu = require('menu');
+const { BrowserWindow, Menu } = require('electron');
 
 /**
  * Creates a default menu. Modeled after https://github.com/atom/electron/pull/1863, augmented with

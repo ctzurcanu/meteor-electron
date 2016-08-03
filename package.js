@@ -2,30 +2,30 @@
 
 Package.describe({
   name: 'jarnoleconte:electron',
-  summary: "Electron",
-  version: "0.2.0",
-  git: "https://github.com/JarnoLeConte/meteor-electron"
+  summary: 'Electron',
+  version: '0.3.0',
+  git: 'https://github.com/JarnoLeConte/meteor-electron'
 });
 
 Npm.depends({
-  "electron-packager": "7.4.0",
-  "is-running": "1.0.5",
-  "lucy-dirsum": "https://github.com/mixmaxhq/lucy-dirsum/archive/08299b483cd0f79d18cd0fa1c5081dcab67c5649.tar.gz",
-  "mkdirp": "0.5.1",
-  "ncp": "2.0.0",
-  "rimraf": "2.4.4",
-  "semver": "5.1.0",
-  "url-join": "0.0.1",
-  "electron-rebuild": "1.0.1",
-  "meteor-build-client-only": "0.5.1",
+  'electron-packager': '7.4.0',
+  'electron-rebuild': '1.1.4',
+  'meteor-build-client-only': '0.5.1',
+  'is-running': '1.0.5',
+  'lucy-dirsum': 'https://github.com/mixmaxhq/lucy-dirsum/archive/08299b483cd0f79d18cd0fa1c5081dcab67c5649.tar.gz',
+  'mkdirp': '0.5.1',
+  'ncp': '2.0.0',
+  'rimraf': '2.4.4',
+  'semver': '5.1.0',
+  'url-join': '0.0.1',
 });
 
 Package.onUse(function (api) {
-  api.versionsFrom("METEOR@1.0");
-  api.use(["mongo-livedata", "webapp", "ejson", "promise@0.6.7"], "server");
-  api.use("underscore", ["server", "client"]);
-  api.use(["iron:router@0.9.4||1.0.0"], {weak: true});
-  api.use("meteorhacks:picker@1.0.0", "server", {weak: true});
+  api.versionsFrom('METEOR@1.3');
+  api.use(['mongo-livedata', 'webapp', 'ejson', 'promise', 'ecmascript', 'es5-shim'], 'server');
+  api.use(['underscore'], ['server', 'client']);
+  api.use(['iron:router@0.9.4||1.0.0'], {weak: true});
+  api.use('meteorhacks:picker@1.0.0', 'server', {weak: true});
 
   api.addFiles([
     'server/createBinaries.js',
@@ -39,37 +39,24 @@ Package.onUse(function (api) {
   ], 'server');
 
   var assets = [
-    "app/autoUpdater.js",
-    "app/main.js",
-    "app/menu.js",
-    "app/package.json",
-    "app/preload.js",
-    "app/proxyWindowEvents.js"
+    'app/api.js',
+    'app/autoUpdater.js',
+    'app/main.js',
+    'app/menu.js',
+    'app/package.json',
+    'app/proxyWindowEvents.js'
   ];
 
   // Use Meteor 1.2+ API, but fall back to the pre-1.2 API if necessary
   if (api.addAssets) {
-    api.addAssets(assets, "server");
+    api.addAssets(assets, 'server');
   } else {
-    api.addFiles(assets, "server", {isAsset: true});
+    api.addFiles(assets, 'server', {isAsset: true});
   }
 
-  api.addFiles(['client/index.js'], "client");
-
-  // Test exports.
-  api.export([
-    'parseMacDownloadUrl',
-    'parseWindowsDownloadUrls'
-  ], 'server', {
-    testOnly: true
-  });
+  api.addFiles(['client/index.js'], 'client');
 
   // Public exports.
-  api.export("Electron", ["client"]);
+  api.export('Electron', ['client']);
 });
 
-Package.onTest(function(api) {
-  api.use(['meson:electron', 'tinytest']);
-
-  api.addFiles('tests/server/downloadUrlsTest.js', 'server');
-});

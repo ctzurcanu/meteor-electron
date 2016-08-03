@@ -9,9 +9,7 @@
  * See https://github.com/atom/electron/issues/1753#issuecomment-104719851.
  */
 var _ = require('underscore');
-var ipc = require('electron').ipcRenderer;
-var remote = require('electron').remote;
-var shell = require('electron').shell;
+var { ipcRenderer: ipc, remote, shell } = require('electron');
 
 /**
  * Defines methods with which to extend the `Electron` module defined in `client.js`.

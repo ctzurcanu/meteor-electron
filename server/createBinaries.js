@@ -36,7 +36,7 @@ var projectRoot = function(){
   }
 };
 
-var ELECTRON_VERSION = '0.37.8';
+var ELECTRON_VERSION = '1.3.2';
 var PACKAGE_NAME = 'jarnoleconte_electron';
 
 var electronSettings = Meteor.settings.electron || {};
@@ -141,13 +141,16 @@ createBinaries = function() {
 
       exec("npm install && npm prune", {cwd: buildDirs.app});
 
-      // Rebuild native modules if any.
-      // TODO(jeff): Start using the pre-gyp fix if someone asks for it, so we can make sure it works:
-      // https://github.com/electronjs/electron-rebuild#node-pre-gyp-workaround
-      Promise.await(electronRebuild.installNodeHeaders(ELECTRON_VERSION, null /* nodeDistUrl */,
-        null /* headersDir */, buildInfo.arch));
-      Promise.await(electronRebuild.rebuildNativeModules(ELECTRON_VERSION,
-        path.join(buildDirs.app, 'node_modules'), null /* headersDir */, buildInfo.arch));
+      /*
+        THERE IS A PROBLEM WITH BUILDING NATIVE MODULES, SKIP FOR NOW
+      */
+      // // Rebuild native modules if any.
+      // // TODO(jeff): Start using the pre-gyp fix if someone asks for it, so we can make sure it works:
+      // // https://github.com/electronjs/electron-rebuild#node-pre-gyp-workaround
+      // Promise.await(electronRebuild.installNodeHeaders(ELECTRON_VERSION, null /* nodeDistUrl */,
+      //   null /* headersDir */, buildInfo.arch));
+      // Promise.await(electronRebuild.rebuildNativeModules(ELECTRON_VERSION,
+      //   path.join(buildDirs.app, 'node_modules'), null /* headersDir */, buildInfo.arch));
     }
 
     /* Write out Electron Settings */

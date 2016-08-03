@@ -1,7 +1,5 @@
 var _ = require('underscore');
-var app = require('electron').app;
-var autoUpdater = require('electron').autoUpdater;
-var dialog = require('electron').dialog;
+var { app, autoUpdater, dialog } = require('electron');
 
 // Daily.
 var SCHEDULED_CHECK_INTERVAL = 24 * 60 * 60 * 1000;
