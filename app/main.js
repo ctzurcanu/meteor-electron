@@ -159,6 +159,10 @@ if (electronSettings.frame === false){
   windowOptions.frame = false;
 }
 
+if (electronSettings.fullscreen === true){
+  windowOptions.fullscreen = true;
+}
+
 // Keep a global reference of the window object so that it won't be garbage collected
 // and the window closed.
 var mainWindow = null;
