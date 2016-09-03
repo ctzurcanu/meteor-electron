@@ -1,10 +1,10 @@
 /* global Package:false, Npm:false */
 
 Package.describe({
-  name: 'jarnoleconte:electron',
+  name: 'ctzurcanu:electron',
   summary: 'Electron',
   version: '0.3.0',
-  git: 'https://github.com/JarnoLeConte/meteor-electron'
+  git: 'https://github.com/ctzurcanu/meteor-electron'
 });
 
 Npm.depends({
